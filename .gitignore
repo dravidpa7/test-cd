@@ -2,7 +2,6 @@
 node_modules/
 
 # Tailwind CSS input file (not needed in production)
-input.css
 
 # Build input inside dist (ignore everything except built output)
 dist/
