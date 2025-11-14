@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI-Powered Communication Practice</title>
+
+  <!-- Tailwind -->
+    <link href="../dist/output.css" rel="stylesheet">
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    body { font-family: "Inter", sans-serif; }
+    .soft-glow { box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
+  </style>
+
+</head>
+<body class="bg-slate-100">
+
+  <!-- Header -->
+  <header class="w-full bg-[#2d2d2d] text-white py-4">
+    <div class="max-w-7xl mx-auto px-6 flex items-center justify-between">
+
+      <div class="flex items-center gap-4">
+        <img 
+          src="https://cdn.prod.website-files.com/67779eba7fda397cbeb2065e/67a9bd6f2a3dd39833ceed32_Skillsmax%20logo%20stacked.svg"
+          class="h-10 object-contain">
+        <h1 class="font-semibold text-lg">Vaigai College of Engineering</h1>
+      </div>
+
+      <div class="flex items-center gap-4">
+        <a class="hidden md:inline-flex py-1.5 px-4 rounded-lg bg-white/10 hover:bg-white/20 text-sm" href="#">Dashboard</a>
+        <a class="hidden md:inline-flex py-1.5 px-4 rounded-lg bg-white/10 hover:bg-white/20 text-sm" href="#">My Results</a>
+        <a class="hidden md:inline-flex py-1.5 px-4 rounded-lg border border-white/20 text-sm hover:bg-white/10" href="#">Contact Support</a>
+
+        <div class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
+          <svg width="22" height="22" stroke="white" fill="none" stroke-width="1.6">
+            <circle cx="11" cy="7" r="4"></circle>
+            <path d="M3 21v-2a6 6 0 0 1 6-6h6a6 6 0 0 1 6 6v2"></path>
+          </svg>
+        </div>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- PAGE LAYOUT -->
+  <div class="max-w-7xl mx-auto px-6 py-8 flex flex-col lg:flex-row gap-8">
+
+    <!-- LEFT side main content -->
+    <div class="flex-1">
+
+      <!-- Question Box -->
+      <div class="border border-slate-300 bg-white rounded-xl p-5">
+        <p class="text-lg font-medium">
+          Can you share an instance where your team achieved success through strong collaboration rather than individual skills?
+        </p>
+      </div>
+
+      <!-- Message -->
+      <p class="mt-4 inline-block border border-slate-300 bg-white py-2 px-4 rounded-lg text-sm text-slate-700">
+        Make sure to turn on your camera and microphone, and that your audio is clear.
+      </p>
+
+      <!-- VIDEO CARD -->
+      <div class="mt-6 bg-white border border-slate-200 rounded-3xl soft-glow p-5">
+
+      <!-- Recording Grid with your own full video -->
+      <div class="w-full h-64 md:h-[420px] rounded-xl relative overflow-hidden bg-black">
+
+        <!-- FULL VIDEO BACKGROUND -->
+        <video 
+          id="mainVideo"
+          autoplay 
+          unmuted 
+          playsinline 
+          loop
+          class="absolute inset-0 w-full h-full object-cover">
+          <source src="./HR_Interviewer_Video_Generation.mp4" type="video/mp4" />
+        </video>
+
+        <!-- Webcam Preview bottom-right -->
+        <video id="webcamPreview" autoplay muted playsinline 
+          class="absolute bottom-4 right-4 w-28 h-20 md:w-40 md:h-28 rounded-lg border border-white/20 shadow-lg object-cover">
+        </video>
+
+      </div>
+
+
+        <!-- Bottom Controls -->
+        <div class="flex flex-col md:flex-row items-center justify-between px-1 mt-4 gap-3">
+
+          <!-- Left buttons -->
+          <div class="flex items-center gap-6 text-slate-500">
+
+            <!-- Camera icon -->
+            <button>
+              <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="1" y="5" width="15" height="14" rx="2"/>
+                <path d="M23 7l-7 5 7 5"/>
+              </svg>
+            </button>
+
+            <!-- Mic icon -->
+            <button>
+              <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 1a3 3 0 0 1 3 3v6a3 3 0 0 1-6 0V4a3 3 0 0 1 3-3z"/>
+                <path d="M19 10a7 7 0 0 1-14 0"/>
+                <line x1="12" y1="17" x2="12" y2="23"/>
+                <line x1="8" y1="23" x2="16" y2="23"/>
+              </svg>
+            </button>
+
+          </div>
+
+          <!-- Timer + End button -->
+          <div class="flex items-center gap-4">
+            <span class="text-sm text-slate-700">00:00 / 02:00</span>
+
+            <button class="px-4 py-1.5 rounded-full border border-slate-300 text-slate-300 cursor-not-allowed">
+              End
+            </button>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- RIGHT Side Questions Panel -->
+    <div class="w-full lg:w-[300px] shrink-0">
+      
+      <div class="bg-white rounded-2xl border border-slate-200 soft-glow">
+
+        <!-- Header -->
+        <div class="bg-[#e85c2d] text-white p-5 rounded-t-2xl">
+          <h2 class="text-xl font-semibold">AI-Powered<br>Communication Practice</h2>
+          <p class="text-sm opacity-90 mt-2">
+            This assessment comprises an AI-powered evaluation designed to practice communication skills.
+          </p>
+        </div>
+
+        <!-- Questions -->
+        <div class="p-5">
+          <h3 class="font-semibold text-slate-800">Questions</h3>
+
+          <!-- Grid of numbers -->
+          <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2 mt-3 mb-3">
+            <div class="p-2 rounded-lg bg-slate-100 text-center">1</div>
+            <div class="p-2 rounded-lg bg-slate-100 text-center">2</div>
+            <div class="p-2 rounded-lg bg-slate-100 text-center">3</div>
+            <div class="p-2 rounded-lg bg-slate-100 text-center">4</div>
+            <div class="p-2 rounded-lg bg-slate-100 text-center">5</div>
+            <div class="p-2 rounded-lg bg-slate-100 text-center">6</div>
+
+            <div class="p-2 rounded-lg bg-[#ff5722]/20 text-[#ff5722] border border-[#ff5722]/40 text-center">7</div>
+
+            <div class="p-2 rounded-lg bg-slate-100 text-center">8</div>
+            <div class="p-2 rounded-lg bg-slate-100 text-center">9</div>
+            <div class="p-2 rounded-lg bg-slate-100 text-center">10</div>
+          </div>
+
+          <!-- Legend -->
+          <div class="mt-2 space-y-2 text-sm">
+            <label class="flex items-center gap-2">
+              <div class="w-4 h-4 bg-slate-300 rounded"></div> Attempted
+            </label>
+            <label class="flex items-center gap-2">
+              <div class="w-4 h-4 bg-slate-100 border rounded"></div> Yet to Attend
+            </label>
+            <label class="flex items-center gap-2">
+              <div class="w-4 h-4 border border-[#e85c2d] rounded"></div> Active
+            </label>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Webcam Script -->
+  <script>
+    navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+      .then(stream => {
+        document.getElementById("webcamPreview").srcObject = stream;
+      })
+      .catch(err => console.log("Camera Error:", err));
+  </script>
+
+</body>
+</html>

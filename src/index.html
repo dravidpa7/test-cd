@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkillsMax Dashboard</title>
+    <link href="../dist/output.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --header-bg: #2d2d2d;
+            --accent: #ff5722;
+            --card-red-from: #e95a53;
+            --card-red-to: #df584e;
+            --card-green-from: #2f8b6a;
+            --card-green-to: #0f7a5a;
+            --card-purple-from: #9f4fb2;
+            --card-purple-to: #7b3aa0;
+        }
+        
+        body {
+            font-family: 'Inter', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+            background: #f8fafc;
+        }
+        
+        .soft-glow {
+            box-shadow: 0 18px 36px rgba(15,23,42,0.06), 0 2px 6px rgba(2,6,23,0.03);
+        }
+        
+        .card-heavy {
+            box-shadow: 0 18px 40px rgba(15,23,42,0.08);
+        }
+        
+        .tiny-info {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            border: 1px solid rgba(255,255,255,0.25);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+        }
+        
+        /* Calendar Popup Styles */
+
+        .calendar-popup {
+            display: none;
+            position: absolute;
+            top: calc(100% + 0.5rem);
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+        }
+        
+        .calendar-popup.active {
+            display: block;
+        }
+
+        .streak-header {
+            background: #ff8f1f;
+            padding: 0.75rem 1.5rem;
+            border-radius: 1rem 1rem 0 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            font-size: 1.125rem;
+            color: white;
+        }
+        
+        @media (min-width: 1024px) {
+            .sidebar-w {
+                width: 300px;
+            }
+            .max-layout {
+                max-width: 1400px;
+            }
+        }
+
+        /* Calendar Container */
+        .calendar-container {
+            background: white;
+            border-radius: 0 0 1.5rem 1.5rem;
+            padding: 1.5rem;
+            max-width: 800px;
+        }
+
+        /* Calendar Header with Navigation */
+        .calendar-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+            padding: 0 1rem;
+        }
+
+        .calendar-nav-btn {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #ff5722;
+            border-radius: 0.5rem;
+            background: #ff5722;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .calendar-nav-btn:hover {
+            background: #f3f4f6;
+            color: #ff5722;
+        }
+
+        .calendar-months {
+            display: flex;
+            justify-content: space-around;
+            flex: 1;
+            font-weight: 600;
+            font-size: 1.125rem;
+            color: #1f2937;
+            padding: 0 2rem;
+        }
+
+        /* Calendar Grid Layout */
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 3rem;
+        }
+
+        .calendar-month {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Weekday Headers */
+        .calendar-weekdays {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .calendar-weekday {
+            text-align: center;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #6b7280;
+            padding: 0.5rem 0;
+        }
+
+        /* Calendar Days Grid */
+        .calendar-days {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 0.5rem;
+        }
+
+        .calendar-day {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 0.5rem;
+            font-size: 0.9375rem;
+            font-weight: 500;
+            color: #1f2937;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .calendar-day:hover {
+            background: #f3f4f6;
+        }
+
+        /* Other Month Days (Faded) */
+        .calendar-day.other-month {
+            color: #d1d5db;
+        }
+
+        /* Streak Range Days (with dot indicator) */
+        .calendar-day.streak-range {
+            color: #1f2937;
+            font-weight: 500;
+        }
+
+        .calendar-day.streak-range::after {
+            content: '';
+            position: absolute;
+            bottom: 0px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 31px;      /* same width */
+            height: 24px;     /* same height = square */
+            background: #ff56227f;
+            border-radius: 0; /* remove roundness */
+        }
+        
+
+
+        /* Streak Start and End Days */
+        .calendar-day.streak-start,
+        .calendar-day.streak-end {
+            background: #e95a53;
+            color: white;
+            width: 23px;
+            border-radius: 0.2rem;
+        }
+
+        .calendar-day.streak-start:hover,
+        .calendar-day.streak-end:hover {
+            background: #1f2937;
+        }
+
+        /* Remove dot for start/end days */
+        .calendar-day.streak-start::after,
+        .calendar-day.streak-end::after {
+            display: none;
+        }
+
+        /* Today indicator (optional) */
+        .calendar-day.today {
+            border: 2px solid #ff5722;
+        }
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            /* Stack main columns */
+            main > .flex {
+                flex-direction: column;
+            }
+
+            /* Make popup full width & fixed for mobile */
+            .calendar-popup {
+                position: fixed;
+                top: 8%;
+                left: 50%;
+                transform: translateX(-50%);
+                width: calc(100% - 2rem);
+                max-width: 720px;
+                z-index: 1200;
+                display: none;
+            }
+            .calendar-popup.active {
+                display: block;
+            }
+
+            .calendar-container {
+                padding: 1rem;
+                border-radius: 1rem;
+                max-height: calc(84vh);
+                overflow: auto;
+            }
+
+            .calendar-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .calendar-months {
+                flex-direction: column;
+                gap: 0.25rem;
+                padding: 0 1rem;
+                font-size: 1rem;
+            }
+
+            .calendar-nav-btn {
+                width: 40px;
+                height: 40px;
+            }
+
+            .calendar-day {
+                aspect-ratio: auto; /* let height adapt for touch */
+                min-height: 44px;   /* bigger tap target */
+                font-size: 0.95rem;
+                border-radius: 0.5rem;
+            }
+
+            .calendar-day.streak-start,
+            .calendar-day.streak-end {
+                width: 36px;
+            }
+
+            /* Sidebar becomes full width and appears after main section */
+            .sidebar-w {
+                width: 100%;
+            }
+
+            /* Header adjustments */
+            header .max-layout {
+                padding-left: 1rem;
+                padding-right: 1rem;
+            }
+
+            header .text-lg {
+                display: none; /* hide long org name to save space */
+            }
+
+            header img {
+                height: 36px;
+            }
+        }
+
+        /* small fixes for very small phones */
+        @media (max-width: 420px) {
+            .calendar-day {
+                min-height: 10px;
+                font-size: 0.9rem;
+            }
+            .calendar-months {
+                padding: 0 .5rem;
+            }
+            .calendar-container {
+                padding: 0.75rem;
+            }
+        }
+    </style>
+</head>
+<body class="antialiased text-slate-800">
+    <!-- Header -->
+    <header class="bg-[#2d2d2d] text-white">
+        <div class="max-layout mx-auto px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <div class="flex items-center gap-3">
+                    <img 
+                        src="https://cdn.prod.website-files.com/67779eba7fda397cbeb2065e/67a9bd6f2a3dd39833ceed32_Skillsmax%20logo%20stacked.svg" 
+                        alt="SkillsMax Logo"
+                        class="h-10 w-auto object-contain"
+                    />
+                    <div class="text-white text-lg font-semibold select-none">Vaigai College of Engineering</div>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <!-- Streak Button -->
+                <div class="relative">
+                    <button 
+                        id="streakBtn"
+                        class="flex items-center gap-2 bg-[#ff5722] text-white px-4 py-2 rounded-xl shadow-md hover:bg-[#ff9f33] transition"
+                    >
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                        <path d="M12 2c-.5 1.8-2.5 3.3-4 5.5C6.5 9.7 6 11.5 6 13c0 4 3 7 6 7s6-3 6-7c0-1.8-.5-3.5-2-5.5C15.5 5.3 13 3.8 12 2z" fill="#ff8f1f"/>
+                        <path d="M12 7c-1.2 1.7-2 2.8-2 4.5 0 2.2 1.4 3.5 2 3.5s2-1.3 2-3.5c0-1.7-.8-2.8-2-4.5z" fill="#ffb13b"/>
+                        <circle cx="12" cy="12" r="1.5" fill="#ffe8c2"/>
+                        </svg>
+
+
+                        <span class="font-semibold text-sm">25-day</span>
+                    </button>
+
+                    <!-- Calendar Popup -->
+                    <div id="calendarPopup" class="calendar-popup">
+                        <div class="bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden">  
+                            
+                            <div class="calendar-container">
+                                <div class="calendar-header">
+                                    <button id="prevMonth" class="calendar-nav-btn" aria-label="Previous months">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <polyline points="15 18 9 12 15 6"></polyline>
+                                        </svg>
+                                    </button>
+                                    <div class="calendar-months">
+                                        <span id="currentMonth">June 2025</span>
+                                        <span id="nextMonthLabel">July 2025</span>
+                                    </div>
+                                    <button id="nextMonth" class="calendar-nav-btn" aria-label="Next months">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <polyline points="9 18 15 12 9 6"></polyline>
+                                        </svg>
+                                    </button>
+                                </div>
+
+                                <div class="calendar-grid">
+                                    <div class="calendar-month">
+                                        <div class="calendar-weekdays">
+                                            <div class="calendar-weekday">Su</div>
+                                            <div class="calendar-weekday">Mo</div>
+                                            <div class="calendar-weekday">Tu</div>
+                                            <div class="calendar-weekday">We</div>
+                                            <div class="calendar-weekday">Th</div>
+                                            <div class="calendar-weekday">Fr</div>
+                                            <div class="calendar-weekday">Sa</div>
+                                        </div>
+                                        <div id="calendar1Days" class="calendar-days"></div>
+                                    </div>
+
+                                    <div class="calendar-month">
+                                        <div class="calendar-weekdays">
+                                            <div class="calendar-weekday">Su</div>
+                                            <div class="calendar-weekday">Mo</div>
+                                            <div class="calendar-weekday">Tu</div>
+                                            <div class="calendar-weekday">We</div>
+                                            <div class="calendar-weekday">Th</div>
+                                            <div class="calendar-weekday">Fr</div>
+                                            <div class="calendar-weekday">Sa</div>
+                                        </div>
+                                        <div id="calendar2Days" class="calendar-days"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="hidden md:flex items-center gap-2 bg-transparent hover:bg-white/10 px-3 py-2 rounded-lg transition">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" class="text-white">
+                        <rect x="3" y="3" width="7" height="7" rx="1"/>
+                        <rect x="14" y="3" width="7" height="7" rx="1"/>
+                        <rect x="14" y="14" width="7" height="7" rx="1"/>
+                        <rect x="3" y="14" width="7" height="7" rx="1"/>
+                    </svg>
+                    <span class="text-sm font-medium">My Results</span>
+                </button>
+
+                <button class="hidden md:inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-white/20 hover:bg-white/6 transition text-sm font-medium">
+                    Contact Support
+                </button>
+
+                <div class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.6">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main -->
+    <main class="max-layout mx-auto px-6 py-8">
+        <div class="flex gap-6">
+            <!-- Left Column -->
+            <section class="flex-1">
+                <!-- Welcome -->
+                <div class="flex items-start gap-5 mb-8">
+                    <div class="w-16 h-16 rounded-full overflow-hidden bg-gradient-to-br from-yellow-100 to-yellow-200 flex items-center justify-center shrink-0">
+                        <svg width="64" height="64" viewBox="0 0 64 64">
+                            <circle cx="32" cy="32" r="32" fill="#fff2e6"/>
+                            <circle cx="32" cy="24" r="11" fill="#6b4b35"/>
+                            <ellipse cx="32" cy="44" rx="18" ry="11" fill="#6b4b35"/>
+                        </svg>
+                    </div>
+
+                    <div class="flex-1">
+                        <div class="text-2xl font-semibold mb-3">Welcome! <span class="font-bold">DRAVID P A</span> <span aria-hidden>👋</span></div>
+                        <div class="p-4 border border-slate-200 rounded-xl bg-white soft-glow">
+                            <p class="text-slate-700">I'm here to guide you! Your practice modules are here on your Dashboard.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Title & subtitle -->
+                <div class="mb-6">
+                    <h2 class="text-2xl font-bold mb-1">Explore Your Assessment Packs</h2>
+                    <p class="text-sm text-slate-500">Jump into your active assessments and start practicing</p>
+                </div>
+
+                <!-- Cards Grid -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Aptitude+ -->
+                    <div class="relative rounded-2xl overflow-hidden card-heavy">
+                        <div class="absolute inset-0 bg-gradient-to-br" style="background: linear-gradient(135deg,var(--card-red-from), var(--card-red-to));"></div>
+                        <div class="absolute inset-0 bg-white/6 blur-[0.6px]"></div>
+                        <div class="relative p-6">
+                            <div class="flex items-start justify-between">
+                                <h3 class="text-xl font-semibold text-white">Aptitude+ Package</h3>
+                                <div class="tiny-info text-white/90">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.6">
+                                        <circle cx="12" cy="12" r="10"/>
+                                        <line x1="12" y1="16" x2="12" y2="12"/>
+                                        <line x1="12" y1="8" x2="12.01" y2="8"/>
+                                    </svg>
+                                </div>
+                            </div>
+                            <p class="text-sm mt-6 text-white/90">Expires on: 30 Jun 2026</p>
+                            <div class="mt-8 inline-block bg-white/20 backdrop-blur rounded-full px-4 py-2">
+                                <span class="text-sm font-semibold text-white">No of Assessments: 7</span>
+                            </div>
+                        </div>
+                        <div class="pointer-events-none absolute left-4 bottom-4 w-[92%] h-0.5 bg-white/12 rounded-md"></div>
+                    </div>
+
+                    <!-- AI-Powered Communication -->
+                    <div onclick="window.location.href='communicationPage.html'" style="cursor: pointer;"
+                    class="relative rounded-2xl overflow-hidden card-heavy">
+                        <div class="absolute inset-0 bg-gradient-to-br" style="background: linear-gradient(135deg,var(--card-green-from), var(--card-green-to));"></div>
+                        <div class="absolute inset-0 bg-white/6 blur-[0.6px]"></div>
+                        <div class="relative p-6">
+                            <div class="flex items-start justify-between">
+                                <h3 class="text-xl font-semibold text-white leading-tight">AI-Powered Communication Package</h3>
+                                <div class="tiny-info text-white/90">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.6">
+                                        <circle cx="12" cy="12" r="10"/>
+                                        <line x1="12" y1="16" x2="12" y2="12"/>
+                                        <line x1="12" y1="8" x2="12.01" y2="8"/>
+                                    </svg>
+                                </div>
+                            </div>
+                            <p class="text-sm mt-6 text-white/90">Expires on: 30 Jun 2026</p>
+                            <div class="mt-8 inline-block bg-white/20 backdrop-blur rounded-full px-4 py-2">
+                                <span class="text-sm font-semibold text-white">No of Assessments: 3</span>
+                            </div>
+                        </div>
+                        <div class="pointer-events-none absolute left-4 bottom-4 w-[92%] h-0.5 bg-white/12 rounded-md"></div>
+                    </div>
+
+                    <!-- Coding Package -->
+                    <div class="relative rounded-2xl overflow-hidden card-heavy">
+                        <div class="absolute inset-0 bg-gradient-to-br" style="background: linear-gradient(135deg,var(--card-purple-from), var(--card-purple-to));"></div>
+                        <div class="absolute inset-0 bg-white/6 blur-[0.6px]"></div>
+                        <div class="relative p-6">
+                            <div class="flex items-start justify-between">
+                                <h3 class="text-xl font-semibold text-white">Coding Package</h3>
+                                <div class="tiny-info text-white/90">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.6">
+                                        <circle cx="12" cy="12" r="10"/>
+                                        <line x1="12" y1="16" x2="12" y2="12"/>
+                                        <line x1="12" y1="8" x2="12.01" y2="8"/>
+                                    </svg>
+                                </div>
+                            </div>
+                            <p class="text-sm mt-6 text-white/90">Expires on: 30 Jun 2026</p>
+                            <div class="mt-8 inline-block bg-white/20 backdrop-blur rounded-full px-4 py-2">
+                                <span class="text-sm font-semibold text-white">No of Assessments: 2</span>
+                            </div>
+                        </div>
+                        <div class="pointer-events-none absolute left-4 bottom-4 w-[92%] h-0.5 bg-white/12 rounded-md"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Right Sidebar -->
+            <aside class="sidebar-w shrink-0">
+                <div class="flex flex-col gap-6">
+                    <!-- Practice of the Day card -->
+                    <div class="bg-white rounded-2xl border border-slate-200 p-5 soft-glow">
+                        <div class="flex items-center justify-between mb-3">
+                            <h4 class="text-lg font-semibold">Practice of the Day</h4>
+                        </div>
+                        <p class="text-sm text-slate-600 mb-4">A new set of practice questions will be available in <span class="font-semibold text-slate-900">23 hrs 42 mins</span></p>
+
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between p-3 rounded-lg bg-slate-50 hover:bg-slate-100 transition cursor-pointer">
+                                <div class="flex-1 pr-3">
+                                    <div class="font-semibold text-slate-900">Aptitude+</div>
+                                    <div class="flex items-center gap-2 text-xs text-slate-500 mt-1">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                                        </svg>
+                                        <span>Intermediate</span>
+                                    </div>
+                                </div>
+                                <div class="w-9 h-9 rounded-full flex items-center justify-center" style="background:var(--accent);">
+                                    <span class="text-white text-sm font-semibold">➔</span>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center justify-between p-3 rounded-lg bg-slate-50 hover:bg-slate-100 transition cursor-pointer">
+                                <div class="flex-1 pr-3">
+                                    <div class="font-semibold text-slate-900">AI-Powered Communication</div>
+                                    <div class="flex items-center gap-2 text-xs text-slate-500 mt-1">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                                        </svg>
+                                        <span>Beginner</span>
+                                    </div>
+                                </div>
+                                <div class="w-9 h-9 rounded-full flex items-center justify-center" style="background:var(--accent);">
+                                    <span class="text-white text-sm font-semibold">➔</span>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center justify-between p-3 rounded-lg bg-slate-50 hover:bg-slate-100 transition cursor-pointer">
+                                <div class="flex-1 pr-3">
+                                    <div class="font-semibold text-slate-900">Coding</div>
+                                    <div class="flex items-center gap-2 text-xs text-slate-500 mt-1">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                                        </svg>
+                                        <span>Advanced</span>
+                                    </div>
+                                </div>
+                                <div class="w-9 h-9 rounded-full flex items-center justify-center" style="background:var(--accent);">
+                                    <span class="text-white text-sm font-semibold">➔</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Announcements -->
+                    <div class="bg-white rounded-2xl border border-slate-200 p-5 soft-glow">
+                        <h4 class="text-lg font-semibold mb-2">Announcements</h4>
+                        <div class="text-sm text-slate-500"></div>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </main>
+
+    <script>
+/* -----------------------------
+   TOGGLE POPUP
+----------------------------- */
+const streakBtn = document.getElementById('streakBtn');
+const calendarPopup = document.getElementById('calendarPopup');
+
+streakBtn.addEventListener('click', function(e) {
+    e.stopPropagation();
+    calendarPopup.classList.toggle('active');
+    if (calendarPopup.classList.contains('active')) renderCalendars();
+});
+document.addEventListener('click', function(e) {
+    if (!streakBtn.contains(e.target) && !calendarPopup.contains(e.target)) {
+        calendarPopup.classList.remove('active');
+    }
+});
+
+/* -----------------------------
+   STREAK RANGE LOGIC
+----------------------------- */
+const streakDays = 25;
+
+const today = new Date();
+today.setHours(0,0,0,0);
+
+const startDate = new Date();
+startDate.setDate(today.getDate() - (streakDays - 1));
+startDate.setHours(0,0,0,0);
+
+function key(date) {
+    return date.toISOString().split("T")[0];
+}
+
+function datesBetween(start, end) {
+    const arr = [];
+    const cur = new Date(start);
+    while (cur <= end) {
+        arr.push(key(cur));
+        cur.setDate(cur.getDate() + 1);
+    }
+    return arr;
+}
+const range = datesBetween(startDate, today);
+
+/* -----------------------------
+   CALENDAR RENDERING
+----------------------------- */
+
+let currentMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+
+function getDays(month, year) {
+    return new Date(year, month + 1, 0).getDate();
+}
+
+function firstDay(month, year) {
+    return new Date(year, month, 1).getDay();
+}
+
+function renderMonth(containerId, month, year) {
+    const box = document.getElementById(containerId);
+    box.innerHTML = "";
+
+    const days = getDays(month, year);
+    const prevDays = getDays(month - 1, year);
+
+    const startWeekday = firstDay(month, year);
+
+    /* ---- PREVIOUS MONTH (ghost days) ---- */
+    for (let i = 0; i < startWeekday; i++) {
+        const d = prevDays - (startWeekday - 1 - i);
+        let cell = document.createElement("div");
+        cell.className = "calendar-day other-month";
+        cell.innerText = d;
+        box.appendChild(cell);
+    }
+
+    /* ---- CURRENT MONTH DAYS ---- */
+    for (let d = 1; d <= days; d++) {
+        const date = new Date(year, month, d);
+        const dateKey = key(date);
+
+        let cell = document.createElement("div");
+        cell.className = "calendar-day";
+        cell.innerText = d;
+
+        if (dateKey === key(startDate)) {
+            cell.classList.add("streak-start");
+        }
+        else if (dateKey === key(today)) {
+            cell.classList.add("streak-end");
+        }
+        else if (range.includes(dateKey)) {
+            cell.classList.add("streak-range");
+        }
+
+        box.appendChild(cell);
+    }
+
+    /* ---- NEXT MONTH (ghost days) ---- */
+    const fill = 42 - box.children.length;
+    for (let d = 1; d <= fill; d++) {
+        let cell = document.createElement("div");
+        cell.className = "calendar-day other-month";
+        cell.innerText = d;
+        box.appendChild(cell);
+    }
+}
+
+/* -----------------------------
+   LABEL UPDATE
+----------------------------- */
+function updateLabels() {
+    const m1 = new Date(currentMonth);
+    const m2 = new Date(currentMonth);
+    m2.setMonth(m2.getMonth() + 1);
+
+    document.getElementById("currentMonth").innerText =
+        m1.toLocaleString("en-US", { month: "long", year: "numeric" });
+
+    document.getElementById("nextMonthLabel").innerText =
+        m2.toLocaleString("en-US", { month: "long", year: "numeric" });
+}
+
+/* -----------------------------
+   MASTER RENDER
+----------------------------- */
+function renderCalendars() {
+    const y = currentMonth.getFullYear();
+    const m = currentMonth.getMonth();
+
+    renderMonth("calendar1Days", m, y);
+    renderMonth("calendar2Days", (m + 1) % 12, m === 11 ? y + 1 : y);
+
+    updateLabels();
+}
+
+/* -----------------------------
+   NAVIGATION
+----------------------------- */
+document.getElementById("prevMonth").addEventListener("click", () => {
+    currentMonth.setMonth(currentMonth.getMonth() - 1);
+    renderCalendars();
+});
+document.getElementById("nextMonth").addEventListener("click", () => {
+    currentMonth.setMonth(currentMonth.getMonth() + 1);
+    renderCalendars();
+});
+</script>
+
+</body>
+</html>
