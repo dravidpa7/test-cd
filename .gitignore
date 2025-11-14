@@ -4,8 +4,7 @@ node_modules/
 # Tailwind CSS input file (not needed in production)
 
 # Build input inside dist (ignore everything except built output)
-dist/
-!dist/output.css
+
 
 # Environment configs
 .env
